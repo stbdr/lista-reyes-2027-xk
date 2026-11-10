@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Reyes: lista de regalos</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%91%91%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Figtree:wght@400;600&display=swap">
+<style>
+:root{--bg:#f2f4fa;--card:#fff;--ink:#1f2850;--mute:#5d668c;--line:#dde1f0;--gold:#9a6a0c;--goldbg:#fbf0d5;--ok:#2b7a58;--okbg:#dff3e8;--bad:#b3394f;--badbg:#fbe3e7;--pri:#27306b;--onpri:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--bg:#121733;--card:#1b2244;--ink:#e8ebfa;--mute:#9aa3cc;--line:#2c3563;--gold:#e5b550;--goldbg:#3a3118;--ok:#6fcf9f;--okbg:#17372b;--bad:#f08aa0;--badbg:#401c28;--pri:#aab4ff;--onpri:#121733;color-scheme:dark}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1,h2{font-family:Fraunces,Georgia,serif;font-weight:600;margin:0}
+h1{font-size:30px;line-height:1.1}
+.sub{color:var(--mute);margin:4px 0 16px}
+button{font:inherit;color:inherit;cursor:pointer}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+.sum div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.sum span{display:block;font-size:13px;color:var(--mute)}
+.sum b{font-size:18px}
+.over{color:var(--bad)}
+.person{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:16px}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.ph h2{font-size:22px}
+.link{background:none;border:0;color:var(--pri);padding:4px;text-decoration:underline}
+.bar{position:relative;height:8px;border-radius:4px;background:var(--line);margin:8px 0 4px;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0}
+.bar .pl{background:var(--gold);opacity:.45}
+.bar .pl.over{background:var(--bad);opacity:.6}
+.bar .sp{background:var(--ok)}
+.bt{font-size:13px;color:var(--mute);margin:0 0 8px}
+ul{list-style:none;margin:0;padding:0}
+.it{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
+.th{width:48px;height:48px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:22px;overflow:hidden}
+.th img{width:100%;height:100%;object-fit:cover}
+.mid b{display:block;font-weight:600;overflow-wrap:anywhere}
+.mid small{color:var(--mute);font-size:13px;overflow-wrap:anywhere}
+.mid a{color:var(--pri)}
+.end{text-align:right}
+.price{display:block;font-weight:600;margin-bottom:4px}
+.chip{border:0;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600}
+.s-pendiente{background:var(--goldbg);color:var(--gold)}
+.s-comprado{background:var(--okbg);color:var(--ok)}
+.s-envuelto{background:var(--pri);color:var(--onpri)}
+.empty{color:var(--mute);padding:8px 0}
+.add{margin-top:8px;background:none;border:1px dashed var(--line);border-radius:10px;padding:8px;width:100%;color:var(--pri)}
+.big{width:100%;background:var(--pri);color:var(--onpri);border:0;border-radius:12px;padding:12px;font-weight:600}
+.note{color:var(--mute);text-align:center;padding:24px 0}
+dialog{border:0;border-radius:16px;background:var(--card);color:var(--ink);padding:0;width:min(440px,calc(100vw - 24px));max-height:calc(100vh - 24px)}
+dialog::backdrop{background:rgba(10,14,40,.55)}
+.dlg{padding:16px}
+.dlg h2{font-size:22px;margin-bottom:8px}
+label{display:block;font-size:13px;color:var(--mute);margin-top:10px}
+input,select,textarea{display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:9px 10px;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.inl{display:flex;gap:8px}
+.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:9px 14px;margin-top:4px}
+.pri{background:var(--pri);color:var(--onpri);border:0;border-radius:10px;padding:10px 16px;font-weight:600}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
+.hint{font-size:13px;color:var(--mute);margin:6px 0 0}
+.lock{font-size:18px}
+.acts .sp{flex:1}
+.dng{color:var(--bad);border-color:var(--bad)}
+.err{color:var(--bad);font-size:14px;margin:8px 0 0;min-height:1em}
+#prev{max-width:96px;max-height:96px;border-radius:10px;margin-top:8px;display:none}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+</style>
+</head>
+<body>
+<main>
+<h1>Reyes 2027</h1>
+<p class="sub">Lista compartida de regalos</p>
+<div id="app"><p class="note">Cargando…</p></div>
+</main>
+
+<dialog id="dI"><div class="dlg">
+<h2 id="iH">Regalo</h2>
+<label>Regalo<input id="iN" maxlength="120"></label>
+<div class="r2">
+<label>Precio (€)<input id="iP" type="number" inputmode="decimal" min="0" step="0.01"></label>
+<label>Estado<select id="iS"><option value="pendiente">Pendiente</option><option value="comprado">Comprado</option><option value="envuelto">Envuelto</option></select></label>
+</div>
+<label>Lo compra<span class="inl"><input id="iB" maxlength="40" placeholder="Nombre"><button type="button" class="ghost" id="iMe">Yo</button></span></label>
+<label>Tienda<input id="iT" maxlength="80"></label>
+<label>Enlace<input id="iL" type="url" placeholder="https://"></label>
+<label>Notas<textarea id="iO" rows="2" maxlength="300" placeholder="Talla, color…"></textarea></label>
+<label>Foto<input id="iF" type="file" accept="image/*"></label>
+<img id="prev" alt="">
+<p class="err" id="iE"></p>
+<div class="acts"><button type="button" class="ghost dng" id="iD">Eliminar</button><span class="sp"></span><button type="button" class="ghost" id="iX">Cancelar</button><button type="button" class="pri" id="iOk">Guardar</button></div>
+</div></dialog>
+
+<dialog id="dP"><div class="dlg">
+<h2 id="pH">Persona</h2>
+<label>Nombre<input id="pN" maxlength="60"></label>
+<label>Presupuesto (€)<input id="pB" type="number" inputmode="decimal" min="0" step="1"></label>
+<label id="pKl">Clave<input id="pK" type="text" autocomplete="off" maxlength="40" placeholder="Opcional"></label>
+<p class="hint">Con clave, la lista de regalos queda oculta para quien no la tenga.</p>
+<p class="err" id="pE"></p>
+<div class="acts"><button type="button" class="ghost dng" id="pD">Eliminar</button><button type="button" class="ghost" id="pQ">Quitar clave</button><span class="sp"></span><button type="button" class="ghost" id="pX">Cancelar</button><button type="button" class="pri" id="pOk">Guardar</button></div>
+</div></dialog>
+
+<dialog id="dK"><div class="dlg">
+<h2 id="kH">Lista oculta</h2>
+<label>Clave<input id="kK" type="password" autocomplete="off"></label>
+<p class="err" id="kE"></p>
+<div class="acts"><span class="sp"></span><button type="button" class="ghost" id="kX">Cancelar</button><button type="button" class="pri" id="kOk">Abrir</button></div>
+</div></dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+const SUPABASE_URL='PEGA_AQUI_TU_PROJECT_URL';
+const SUPABASE_KEY='PEGA_AQUI_TU_ANON_KEY';
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const eur=n=>new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR',maximumFractionDigits:2}).format(n||0);
+const sum=(a,f)=>a.reduce((t,x)=>t+(+f(x)||0),0);
+const NEXT={pendiente:'comprado',comprado:'envuelto',envuelto:'pendiente'};
+const fotoUrl=p=>`${SUPABASE_URL}/storage/v1/object/public/fotos/${encodeURIComponent(p)}`;
+let sb=null,loaded=false,people=[],items=[],estado={},curI=null,curP=null,curK=null;
+let claves={};try{claves=JSON.parse(sessionStorage.getItem('reyes.claves')||'{}');}catch(e){}
+const saveClaves=()=>{try{sessionStorage.setItem('reyes.claves',JSON.stringify(claves));}catch(e){}};
+const kOf=id=>claves[id]||'';
+const datosDe=i=>({nombre:i.nombre,precio:i.precio,estado:i.estado,comprador:i.comprador,tienda:i.tienda,enlace:i.enlace,notas:i.notas,foto:i.foto});
+const note=t=>{$('#app').innerHTML=`<p class="note">${t}</p>`;};
+
+async function load(){
+  const [a,b,c]=await Promise.all([
+    sb.from('personas').select('*').order('creado'),
+    sb.rpc('estado_personas',{p_claves:claves}),
+    sb.rpc('ver_regalos',{p_claves:claves})
+  ]);
+  if(a.error||b.error||c.error){if(!loaded)note('No se pudo conectar con Supabase. Revisa la configuración y que hayas ejecutado supabase.sql.');return;}
+  people=a.data;estado={};(b.data||[]).forEach(r=>{estado[r.persona_id]=r.abierta;});items=c.data||[];loaded=true;render();
+}
+
+function render(){
+  if(!loaded)return;
+  const by={};items.forEach(i=>(by[i.persona_id]=by[i.persona_id]||[]).push(i));
+  let tb=0,tp=0,ts=0,ocultas=0;
+  const html=people.map(p=>{
+    const st=estado[p.id];
+    if(st===false){
+      ocultas++;
+      return `<section class="person"><div class="ph"><h2>${esc(p.nombre)}</h2><span class="lock">🔒</span></div><p class="bt">Lista de regalos oculta.</p><button class="add" data-act="unlock" data-p="${p.id}">Desbloquear</button></section>`;
+    }
+    const its=by[p.id]||[];
+    const pl=sum(its,i=>i.precio),sp=sum(its.filter(i=>i.estado!=='pendiente'),i=>i.precio),b=+p.presupuesto||0;
+    tb+=b;tp+=pl;ts+=sp;
+    const over=b>0&&pl>b;
+    const bt=b?(over?`Te pasas ${eur(pl-b)} del presupuesto de ${eur(b)}`:`Previsto ${eur(pl)} de ${eur(b)}, gastado ${eur(sp)}`):`Previsto ${eur(pl)}, gastado ${eur(sp)}`;
+    const rows=its.map(i=>{
+      const meta=[i.comprador?'Lo compra '+esc(i.comprador):'',esc(i.tienda),esc(i.notas)].filter(Boolean).join(', ');
+      const lk=/^https?:\/\//i.test(i.enlace||'')?` <a href="${esc(i.enlace)}" target="_blank" rel="noopener noreferrer">Ver enlace</a>`:'';
+      const th=i.foto?`<img src="${esc(fotoUrl(i.foto))}" alt="" loading="lazy">`:'🎁';
+      return `<li class="it" data-act="item" data-i="${i.id}"><div class="th">${th}</div><div class="mid"><b>${esc(i.nombre)}</b><small>${meta}${lk}</small></div><div class="end"><span class="price">${i.precio?eur(i.precio):'Sin precio'}</span><button class="chip s-${i.estado}" data-act="cycle" data-i="${i.id}">${esc(i.estado)}</button></div></li>`;
+    }).join('');
+    const abierta=st===true;
+    return `<section class="person"><div class="ph"><h2>${esc(p.nombre)} ${abierta?'<span class="lock">🔓</span>':''}</h2><span>${abierta?`<button class="link" data-act="hide" data-p="${p.id}">Ocultar</button>`:''}<button class="link" data-act="editP" data-p="${p.id}">Editar</button></span></div>
+<div class="bar"><i class="pl ${over?'over':''}" style="width:${b?Math.min(100,pl/b*100):0}%"></i><i class="sp" style="width:${b?Math.min(100,sp/b*100):0}%"></i></div>
+<p class="bt ${over?'over':''}">${bt}</p>
+<ul>${rows||'<li class="empty">Aún no hay regalos.</li>'}</ul>
+<button class="add" data-act="addI" data-p="${p.id}">Añadir regalo</button></section>`;
+  }).join('');
+  const top=`<div class="sum"><div><span>Presupuesto</span><b>${eur(tb)}</b></div><div><span>Previsto</span><b class="${tb&&tp>tb?'over':''}">${eur(tp)}</b></div><div><span>Gastado</span><b>${eur(ts)}</b></div></div>${ocultas?'<p class="hint" style="margin:-10px 0 16px">Los totales no incluyen las listas ocultas.</p>':''}`;
+  $('#app').innerHTML=(people.length?top+html:'<p class="note">Todavía no hay nadie en la lista.</p>')+'<button class="big" data-act="addP">Añadir persona</button>';
+}
+
+function openItem(i,personId){
+  curI=i?{...i}:{persona_id:personId};
+  $('#iH').textContent=i?'Editar regalo':'Nuevo regalo';
+  $('#iN').value=curI.nombre||'';$('#iP').value=curI.precio||'';$('#iS').value=curI.estado||'pendiente';
+  $('#iB').value=curI.comprador||'';$('#iT').value=curI.tienda||'';$('#iL').value=curI.enlace||'';$('#iO').value=curI.notas||'';
+  $('#iF').value='';
+  const pv=$('#prev');pv.style.display=curI.foto?'block':'none';if(curI.foto)pv.src=fotoUrl(curI.foto);
+  $('#iD').style.display=i?'':'none';$('#iD').textContent='Eliminar';$('#iE').textContent='';
+  $('#dI').showModal();
+}
+function openPerson(p){
+  curP=p?{...p}:{};
+  const bloq=p&&estado[p.id]===true;
+  $('#pH').textContent=p?'Editar persona':'Nueva persona';
+  $('#pN').value=curP.nombre||'';$('#pB').value=curP.presupuesto||'';$('#pK').value='';
+  $('#pKl').firstChild.textContent=bloq?'Cambiar clave':'Clave';
+  $('#pK').placeholder=bloq?'Déjalo vacío para mantenerla':'Opcional';
+  $('#pQ').style.display=bloq?'':'none';
+  $('#pD').style.display=p?'':'none';$('#pD').textContent='Eliminar';$('#pE').textContent='';
+  $('#dP').showModal();
+}
+function openKey(id){
+  curK=id;const p=people.find(x=>x.id===id);
+  $('#kH').textContent='Lista de '+(p?p.nombre:'');$('#kK').value='';$('#kE').textContent='';
+  $('#dK').showModal();
+}
+async function shrink(file){
+  const bmp=await createImageBitmap(file);
+  const k=Math.min(1,480/Math.max(bmp.width,bmp.height));
+  const c=document.createElement('canvas');c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+  c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+  return new Promise(r=>c.toBlob(r,'image/jpeg',.82));
+}
+async function saveItem(){
+  const nombre=$('#iN').value.trim();
+  if(!nombre){$('#iE').textContent='Escribe qué regalo es.';return;}
+  const btn=$('#iOk');btn.disabled=true;btn.textContent='Guardando…';
+  try{
+    let foto=curI.foto||'';
+    const f=$('#iF').files[0];
+    if(f){
+      const path=crypto.randomUUID()+'.jpg';
+      const up=await sb.storage.from('fotos').upload(path,await shrink(f),{contentType:'image/jpeg'});
+      if(up.error)throw up.error;
+      foto=path;
+    }
+    const comprador=$('#iB').value.trim();
+    try{if(comprador)localStorage.setItem('reyes.nombre',comprador);}catch(e){}
+    const datos={nombre,precio:parseFloat($('#iP').value)||0,estado:$('#iS').value,comprador,tienda:$('#iT').value.trim(),enlace:$('#iL').value.trim(),notas:$('#iO').value.trim(),foto};
+    const r=await sb.rpc('guardar_regalo',{p_persona:curI.persona_id,p_clave:kOf(curI.persona_id),p_id:curI.id||null,p_datos:datos});
+    if(r.error)throw r.error;
+    $('#dI').close();await load();
+  }catch(e){$('#iE').textContent='No se pudo guardar. Revisa la foto, la clave o la conexión e inténtalo de nuevo.';}
+  btn.disabled=false;btn.textContent='Guardar';
+}
+async function savePerson(){
+  const nombre=$('#pN').value.trim();
+  if(!nombre){$('#pE').textContent='Escribe un nombre.';return;}
+  const data={nombre,presupuesto:parseFloat($('#pB').value)||0};
+  const k=$('#pK').value.trim();
+  let id=curP.id,r;
+  if(id){r=await sb.from('personas').update(data).eq('id',id);}
+  else{r=await sb.from('personas').insert(data).select('id').single();if(!r.error)id=r.data.id;}
+  if(r.error){$('#pE').textContent='No se pudo guardar.';return;}
+  if(k){
+    const rr=await sb.rpc('poner_clave',{p_persona:id,p_nueva:k,p_actual:kOf(id)});
+    if(rr.error){$('#pE').textContent='No se pudo poner la clave.';await load();return;}
+    claves[id]=k;saveClaves();
+  }
+  $('#dP').close();await load();
+}
+async function confirmDel(btn,fn,errEl){
+  if(btn.dataset.sure!=='1'){btn.dataset.sure='1';btn.textContent='¿Seguro?';setTimeout(()=>{btn.dataset.sure='';btn.textContent='Eliminar';},3000);return;}
+  try{await fn();}catch(e){errEl.textContent='No se pudo eliminar.';}
+}
+
+document.addEventListener('click',async e=>{
+  if(e.target.closest('a'))return;
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const a=t.dataset.act;
+  if(a==='cycle'){
+    const it=items.find(x=>x.id===t.dataset.i);if(!it)return;
+    it.estado=NEXT[it.estado]||'comprado';render();
+    await sb.rpc('guardar_regalo',{p_persona:it.persona_id,p_clave:kOf(it.persona_id),p_id:it.id,p_datos:datosDe(it)});load();
+  }
+  else if(a==='item')openItem(items.find(x=>x.id===t.dataset.i));
+  else if(a==='addI')openItem(null,t.dataset.p);
+  else if(a==='editP')openPerson(people.find(x=>x.id===t.dataset.p));
+  else if(a==='addP')openPerson(null);
+  else if(a==='unlock')openKey(t.dataset.p);
+  else if(a==='hide'){delete claves[t.dataset.p];saveClaves();load();}
+});
+$('#iX').onclick=()=>$('#dI').close();
+$('#pX').onclick=()=>$('#dP').close();
+$('#kX').onclick=()=>$('#dK').close();
+$('#iOk').onclick=saveItem;
+$('#pOk').onclick=savePerson;
+$('#kOk').onclick=async()=>{
+  claves[curK]=$('#kK').value;saveClaves();await load();
+  if(estado[curK]===false){delete claves[curK];saveClaves();$('#kE').textContent='Clave incorrecta.';}
+  else $('#dK').close();
+};
+$('#kK').onkeydown=e=>{if(e.key==='Enter')$('#kOk').click();};
+$('#iMe').onclick=()=>{let n='';try{n=localStorage.getItem('reyes.nombre')||'';}catch(e){}$('#iB').value=n;if(!n)$('#iB').focus();};
+$('#iF').onchange=()=>{const f=$('#iF').files[0];const pv=$('#prev');if(f){pv.src=URL.createObjectURL(f);pv.style.display='block';}};
+$('#iD').onclick=e=>confirmDel(e.currentTarget,async()=>{
+  const r=await sb.rpc('borrar_regalo',{p_persona:curI.persona_id,p_clave:kOf(curI.persona_id),p_id:curI.id});if(r.error)throw r.error;
+  $('#dI').close();await load();
+},$('#iE'));
+$('#pD').onclick=e=>confirmDel(e.currentTarget,async()=>{
+  const r=await sb.rpc('borrar_persona',{p_persona:curP.id,p_clave:kOf(curP.id)});if(r.error)throw r.error;
+  delete claves[curP.id];saveClaves();$('#dP').close();await load();
+},$('#pE'));
+$('#pQ').onclick=async()=>{
+  const r=await sb.rpc('poner_clave',{p_persona:curP.id,p_nueva:'',p_actual:kOf(curP.id)});
+  if(r.error){$('#pE').textContent='No se pudo quitar la clave.';return;}
+  delete claves[curP.id];saveClaves();$('#dP').close();await load();
+};
+document.addEventListener('error',e=>{if(e.target.tagName==='IMG'&&e.target.id!=='prev'){const s=document.createElement('span');s.textContent='🎁';e.target.replaceWith(s);}},true);
+
+(function start(){
+  if(SUPABASE_URL.includes('PEGA_AQUI')||SUPABASE_KEY.includes('PEGA_AQUI')){note('Falta configurar Supabase: pega tu URL y tu clave en las dos primeras líneas del script de index.html.');return;}
+  if(!window.supabase){note('No se pudo cargar la librería de Supabase.');return;}
+  sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  load();
+  setInterval(()=>{if(!document.hidden)load();},10000);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});
+})();
+</script>
+</body>
+</html>
