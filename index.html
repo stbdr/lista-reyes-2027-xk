@@ -87,6 +87,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ofi{display:flex;align-items:center;gap:12px;margin-top:4px;min-height:24px;padding-left:28px}
 .of .lk{margin-top:6px}
 .tag.mas{color:var(--mute);font-weight:400}
+.gh small span{display:block}
+.rb{color:var(--ok)}
+.rp{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -228,27 +231,30 @@ let fold={};try{fold=JSON.parse(localStorage.getItem('reyes.plegados')||'{}');}c
 function grupos(pid,its,rowOf){
   const cl=k=>!filtering&&fold[k];
   const cats=new Map();
+  const nuevo=l=>({label:l,b:0,bt:0,p:0,pt:0});
+  const suma=(x,i)=>{const v=+i.precio||0;if(i.estado==='pendiente'){x.p++;x.pt+=v;}else{x.b++;x.bt+=v;}};
   its.forEach(i=>{
     const ck=nk(i.categoria),sk=ck?nk(i.subcategoria):'';
-    if(!cats.has(ck))cats.set(ck,{label:(i.categoria||'').trim(),subs:new Map(),n:0,t:0});
-    const c=cats.get(ck);c.n++;c.t+=+i.precio||0;
-    if(!c.subs.has(sk))c.subs.set(sk,{label:(i.subcategoria||'').trim(),items:[],t:0});
-    const g=c.subs.get(sk);g.items.push(i);g.t+=+i.precio||0;
+    if(!cats.has(ck))cats.set(ck,{...nuevo((i.categoria||'').trim()),subs:new Map()});
+    const c=cats.get(ck);suma(c,i);
+    if(!c.subs.has(sk))c.subs.set(sk,{...nuevo((i.subcategoria||'').trim()),items:[]});
+    const g=c.subs.get(sk);suma(g,i);g.items.push(i);
   });
   if(cats.size===0)return '';
   if(cats.size===1&&cats.has(''))return its.map(rowOf).join('');
-  const cnt=(n,t)=>`${n===1?'1 regalo':n+' regalos'}, ${eur(t)}`;
+  const cnt=x=>(x.b?`<span class="rb">${x.b===1?'1 comprado':x.b+' comprados'}, ${eur(x.bt)}</span>`:'')+(x.p?`<span class="rp">${x.p===1?'1 pendiente':x.p+' pendientes'}, ${eur(x.pt)}</span>`:'');
+  const ed=(extra,tipo)=>` <button class="link ed" data-act="renC" data-p="${esc(pid)}" ${extra} aria-label="Editar ${tipo}">✎</button>`;
   const keys=[...cats.keys()].sort((a,b)=>a===''?1:b===''?-1:a.localeCompare(b,'es'));
   return keys.map(ck=>{
     const c=cats.get(ck),fk=pid+'|'+ck;
-    let h=`<li class="gh" role="button" data-act="fold" data-k="${esc(fk)}"><span>${cl(fk)?'▸':'▾'} ${esc(c.label||'Sin categoría')}</span><small>${cnt(c.n,c.t)}${ck?` <button class="link ed" data-act="renC" data-p="${esc(pid)}" data-c="${esc(ck)}" aria-label="Editar categoría">✎</button>`:''}</small></li>`;
+    let h=`<li class="gh" role="button" data-act="fold" data-k="${esc(fk)}"><span>${cl(fk)?'▸':'▾'} ${esc(c.label||'Sin categoría')}${ck?ed(`data-c="${esc(ck)}"`,'categoría'):''}</span><small>${cnt(c)}</small></li>`;
     if(cl(fk))return h;
     const sks=[...c.subs.keys()].sort((a,b)=>a===''?-1:b===''?1:a.localeCompare(b,'es'));
     return h+sks.map(sk=>{
       const g=c.subs.get(sk);
       if(sk==='')return g.items.map(rowOf).join('');
       const sf=fk+'|'+sk;
-      return `<li class="gh sub" role="button" data-act="fold" data-k="${esc(sf)}"><span>${cl(sf)?'▸':'▾'} ${esc(g.label)}</span><small>${cnt(g.items.length,g.t)} <button class="link ed" data-act="renC" data-p="${esc(pid)}" data-c="${esc(ck)}" data-s="${esc(sk)}" aria-label="Editar subcategoría">✎</button></small></li>`+(cl(sf)?'':g.items.map(rowOf).join(''));
+      return `<li class="gh sub" role="button" data-act="fold" data-k="${esc(sf)}"><span>${cl(sf)?'▸':'▾'} ${esc(g.label)}${ed(`data-c="${esc(ck)}" data-s="${esc(sk)}"`,'subcategoría')}</span><small>${cnt(g)}</small></li>`+(cl(sf)?'':g.items.map(rowOf).join(''));
     }).join('');
   }).join('');
 }
