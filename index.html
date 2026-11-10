@@ -87,7 +87,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .ofi{display:flex;align-items:center;gap:12px;margin-top:4px;min-height:24px;padding-left:28px}
 .of .lk{margin-top:6px}
 .tag.mas{color:var(--mute);font-weight:400}
-.gh small span{display:block}
+.gh small{flex-shrink:0;white-space:nowrap}
+.gh small span{margin-left:10px}
 .rb{color:var(--ok)}
 .rp{color:var(--gold)}
 </style>
@@ -242,7 +243,7 @@ function grupos(pid,its,rowOf){
   });
   if(cats.size===0)return '';
   if(cats.size===1&&cats.has(''))return its.map(rowOf).join('');
-  const cnt=x=>(x.b?`<span class="rb">${x.b===1?'1 comprado':x.b+' comprados'}, ${eur(x.bt)}</span>`:'')+(x.p?`<span class="rp">${x.p===1?'1 pendiente':x.p+' pendientes'}, ${eur(x.pt)}</span>`:'');
+  const cnt=x=>(x.b?`<span class="rb" title="Comprados">✓ ${x.b}, ${eur(x.bt)}</span>`:'')+(x.p?`<span class="rp" title="Pendientes">○ ${x.p}, ${eur(x.pt)}</span>`:'');
   const ed=(extra,tipo)=>` <button class="link ed" data-act="renC" data-p="${esc(pid)}" ${extra} aria-label="Editar ${tipo}">✎</button>`;
   const keys=[...cats.keys()].sort((a,b)=>a===''?1:b===''?-1:a.localeCompare(b,'es'));
   return keys.map(ck=>{
