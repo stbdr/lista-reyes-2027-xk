@@ -70,6 +70,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .of .acts{margin-top:8px}
 .tag{font-size:13px;color:var(--ok);font-weight:600}
 .sec{font-size:15px;font-weight:600;margin:16px 0 0}
+.gh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0 8px;border-top:1px solid var(--line);cursor:pointer;font-weight:600}
+.gh small{color:var(--mute);font-weight:400;font-size:13px;text-align:right}
+.gh.sub{padding-left:16px;font-size:15px}
 </style>
 </head>
 <body>
@@ -82,6 +85,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <dialog id="dI"><div class="dlg">
 <h2 id="iH">Regalo</h2>
 <label>Regalo<input id="iN" maxlength="120"></label>
+<div class="r2">
+<label>Categoría<input id="iC" list="dlC" maxlength="40" placeholder="Ropa"></label>
+<label>Subcategoría<input id="iU" list="dlU" maxlength="40" placeholder="Zapatillas"></label>
+</div>
+<datalist id="dlC"></datalist><datalist id="dlU"></datalist>
+<p class="hint">La subcategoría solo se usa si pones categoría.</p>
 <div class="r2">
 <label>Precio (€)<input id="iP" type="number" inputmode="decimal" min="0" step="0.01"></label>
 <label>Estado<select id="iS"><option value="pendiente">Pendiente</option><option value="comprado">Comprado</option><option value="envuelto">Envuelto</option></select></label>
@@ -134,7 +143,7 @@ let sb=null,loaded=false,people=[],items=[],estado={},curI=null,curP=null,curK=n
 let claves={};try{claves=JSON.parse(sessionStorage.getItem('reyes.claves')||'{}');}catch(e){}
 const saveClaves=()=>{try{sessionStorage.setItem('reyes.claves',JSON.stringify(claves));}catch(e){}};
 const kOf=id=>claves[id]||'';
-const datosDe=i=>({nombre:i.nombre,precio:i.precio,estado:i.estado,comprador:i.comprador,tienda:i.tienda,enlace:i.enlace,notas:i.notas,foto:i.foto,ofertas:i.ofertas||[]});
+const datosDe=i=>({nombre:i.nombre,precio:i.precio,estado:i.estado,comprador:i.comprador,tienda:i.tienda,enlace:i.enlace,notas:i.notas,foto:i.foto,ofertas:i.ofertas||[],categoria:i.categoria||'',subcategoria:i.subcategoria||''});
 const note=t=>{$('#app').innerHTML=`<p class="note">${t}</p>`;};
 
 async function load(){
@@ -162,13 +171,14 @@ function render(){
     tb+=b;tp+=pl;ts+=sp;
     const over=b>0&&pl>b;
     const bt=b?(over?`Te pasas ${eur(pl-b)} del presupuesto de ${eur(b)}`:`Previsto ${eur(pl)} de ${eur(b)}, gastado ${eur(sp)}`):`Previsto ${eur(pl)}, gastado ${eur(sp)}`;
-    const rows=its.map(i=>{
+    const rowOf=i=>{
       const pr=(i.ofertas||[]).map(o=>+o.precio).filter(x=>x>0);
       const meta=[i.comprador?'Lo compra '+esc(i.comprador):'',esc(i.tienda),pr.length>1?`${pr.length} tiendas, desde ${eur(Math.min(...pr))}`:'',esc(i.notas)].filter(Boolean).join(', ');
       const lk=/^https?:\/\//i.test(i.enlace||'')?` <a href="${esc(i.enlace)}" target="_blank" rel="noopener noreferrer">Ver enlace</a>`:'';
       const th=i.foto?`<img src="${esc(fotoUrl(i.foto))}" alt="" loading="lazy">`:'🎁';
       return `<li class="it" data-act="item" data-i="${i.id}"><div class="th">${th}</div><div class="mid"><b>${esc(i.nombre)}</b><small>${meta}${lk}</small></div><div class="end"><span class="price">${i.precio?eur(i.precio):'Sin precio'}</span><button class="chip s-${i.estado}" data-act="cycle" data-i="${i.id}">${esc(i.estado)}</button></div></li>`;
-    }).join('');
+    };
+    const rows=grupos(p.id,its,rowOf);
     const abierta=st===true;
     return `<section class="person"><div class="ph"><h2>${esc(p.nombre)} ${abierta?'<span class="lock">🔓</span>':''}</h2><span>${abierta?`<button class="link" data-act="hide" data-p="${p.id}">Ocultar</button>`:''}<button class="link" data-act="editP" data-p="${p.id}">Editar</button></span></div>
 <div class="bar"><i class="pl ${over?'over':''}" style="width:${b?Math.min(100,pl/b*100):0}%"></i><i class="sp" style="width:${b?Math.min(100,sp/b*100):0}%"></i></div>
@@ -180,11 +190,51 @@ function render(){
   $('#app').innerHTML=(people.length?top+html:'<p class="note">Todavía no hay nadie en la lista.</p>')+'<button class="big" data-act="addP">Añadir persona</button>';
 }
 
+/*G*/
+const nk=s=>(s||'').trim().toLowerCase();
+let fold={};try{fold=JSON.parse(localStorage.getItem('reyes.plegados')||'{}');}catch(e){}
+function grupos(pid,its,rowOf){
+  const cats=new Map();
+  its.forEach(i=>{
+    const ck=nk(i.categoria),sk=ck?nk(i.subcategoria):'';
+    if(!cats.has(ck))cats.set(ck,{label:(i.categoria||'').trim(),subs:new Map(),n:0,t:0});
+    const c=cats.get(ck);c.n++;c.t+=+i.precio||0;
+    if(!c.subs.has(sk))c.subs.set(sk,{label:(i.subcategoria||'').trim(),items:[],t:0});
+    const g=c.subs.get(sk);g.items.push(i);g.t+=+i.precio||0;
+  });
+  if(cats.size===0)return '';
+  if(cats.size===1&&cats.has(''))return its.map(rowOf).join('');
+  const cnt=(n,t)=>`${n===1?'1 regalo':n+' regalos'}, ${eur(t)}`;
+  const keys=[...cats.keys()].sort((a,b)=>a===''?1:b===''?-1:a.localeCompare(b,'es'));
+  return keys.map(ck=>{
+    const c=cats.get(ck),fk=pid+'|'+ck;
+    let h=`<li class="gh" role="button" data-act="fold" data-k="${esc(fk)}"><span>${fold[fk]?'▸':'▾'} ${esc(c.label||'Sin categoría')}</span><small>${cnt(c.n,c.t)}</small></li>`;
+    if(fold[fk])return h;
+    const sks=[...c.subs.keys()].sort((a,b)=>a===''?-1:b===''?1:a.localeCompare(b,'es'));
+    return h+sks.map(sk=>{
+      const g=c.subs.get(sk);
+      if(sk==='')return g.items.map(rowOf).join('');
+      const sf=fk+'|'+sk;
+      return `<li class="gh sub" role="button" data-act="fold" data-k="${esc(sf)}"><span>${fold[sf]?'▸':'▾'} ${esc(g.label)}</span><small>${cnt(g.items.length,g.t)}</small></li>`+(fold[sf]?'':g.items.map(rowOf).join(''));
+    }).join('');
+  }).join('');
+}
+/*E*/
+const canon=(val,arr)=>{const t=(val||'').trim();const f=arr.find(x=>(x||'').trim()&&nk(x)===nk(t));return f?f.trim():t;};
+function fillSug(){
+  const mine=items.filter(i=>i.persona_id===curI.persona_id);
+  const uniq=a=>{const m=new Map();a.forEach(x=>{x=(x||'').trim();if(x&&!m.has(nk(x)))m.set(nk(x),x);});return [...m.values()].sort((x,y)=>x.localeCompare(y,'es'));};
+  const ck=nk($('#iC').value);
+  $('#dlC').innerHTML=uniq(mine.map(i=>i.categoria)).map(c=>`<option value="${esc(c)}">`).join('');
+  $('#dlU').innerHTML=uniq(mine.filter(i=>ck&&nk(i.categoria)===ck).map(i=>i.subcategoria)).map(c=>`<option value="${esc(c)}">`).join('');
+}
+document.addEventListener('input',e=>{if(e.target.id==='iC')fillSug();});
+
 function openItem(i,personId){
   curI=i?{...i}:{persona_id:personId};
   $('#iH').textContent=i?'Editar regalo':'Nuevo regalo';
   $('#iN').value=curI.nombre||'';$('#iP').value=curI.precio||'';$('#iS').value=curI.estado||'pendiente';
-  $('#iB').value=curI.comprador||'';$('#iT').value=curI.tienda||'';$('#iL').value=curI.enlace||'';$('#iO').value=curI.notas||'';
+  $('#iC').value=curI.categoria||'';$('#iU').value=curI.subcategoria||'';fillSug();$('#iB').value=curI.comprador||'';$('#iT').value=curI.tienda||'';$('#iL').value=curI.enlace||'';$('#iO').value=curI.notas||'';
   $('#iF').value='';curO=(curI.ofertas||[]).map(o=>({tienda:o.tienda||'',precio:+o.precio||0,enlace:o.enlace||''}));renderO();$('#oM').textContent='Pulsa Elegir en la tienda que decidas y se rellenan precio, tienda y enlace.';
   const pv=$('#prev');pv.style.display=curI.foto?'block':'none';if(curI.foto)pv.src=fotoUrl(curI.foto);
   $('#iD').style.display=i?'':'none';$('#iD').textContent='Eliminar';$('#iE').textContent='';
@@ -231,7 +281,10 @@ async function saveItem(){
     const ofertas=curO.map(o=>({tienda:(o.tienda||'').trim(),precio:+o.precio||0,enlace:(o.enlace||'').trim()})).filter(o=>o.tienda||o.precio);
     let precio=parseFloat($('#iP').value)||0,tienda=$('#iT').value.trim(),enlace=$('#iL').value.trim();
     if(!precio){const c=ofertas.filter(o=>o.precio>0).sort((a,b)=>a.precio-b.precio)[0];if(c){precio=c.precio;if(!tienda)tienda=c.tienda;if(!enlace)enlace=c.enlace;}}
-    const datos={nombre,precio,estado:$('#iS').value,comprador,tienda,enlace,notas:$('#iO').value.trim(),foto,ofertas};
+    const mine=items.filter(i=>i.persona_id===curI.persona_id&&i.id!==curI.id);
+    const categoria=canon($('#iC').value,mine.map(i=>i.categoria));
+    const subcategoria=categoria?canon($('#iU').value,mine.filter(i=>nk(i.categoria)===nk(categoria)).map(i=>i.subcategoria)):'';
+    const datos={nombre,precio,estado:$('#iS').value,comprador,tienda,enlace,notas:$('#iO').value.trim(),foto,ofertas,categoria,subcategoria};
     const r=await sb.rpc('guardar_regalo',{p_persona:curI.persona_id,p_clave:kOf(curI.persona_id),p_id:curI.id||null,p_datos:datos});
     if(r.error)throw r.error;
     $('#dI').close();await load();
@@ -274,6 +327,7 @@ document.addEventListener('click',async e=>{
   else if(a==='addP')openPerson(null);
   else if(a==='unlock')openKey(t.dataset.p);
   else if(a==='hide'){delete claves[t.dataset.p];saveClaves();load();}
+  else if(a==='fold'){const k=t.dataset.k;if(fold[k])delete fold[k];else fold[k]=1;try{localStorage.setItem('reyes.plegados',JSON.stringify(fold));}catch(e){}render();}
 });
 $('#iX').onclick=()=>$('#dI').close();
 $('#pX').onclick=()=>$('#dP').close();

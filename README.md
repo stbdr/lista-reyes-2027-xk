@@ -6,10 +6,10 @@
 3. Ve a **Project Settings > API** y copia:
    - **Project URL**
    - La clave **anon public** (en proyectos nuevos puede llamarse *Publishable key*).
-4. Abre `index.html` y pega esos dos valores en las dos primeras líneas del script (`SUPABASE_URL` y `SUPABASE_KEY`).
+4. Abre `config.js` y pega esos dos valores entre las comillas.
 
 ## 2. GitHub Pages (gratis)
-1. Crea un repositorio nuevo en GitHub y sube `index.html`.
+1. Crea un repositorio nuevo en GitHub y sube `index.html` y `config.js`.
 2. En el repositorio: **Settings > Pages > Build and deployment > Deploy from a branch**, rama `main`, carpeta `/ (root)`.
 3. Tras un minuto tendrás la dirección `https://TU-USUARIO.github.io/NOMBRE-REPO/`. Compártela con tu familia.
 
@@ -24,3 +24,6 @@ Al crear o editar a una persona puedes ponerle una **clave**. Su lista de regalo
 - Sin inicio de sesión: **cualquiera que tenga el enlace puede ver y editar la lista** (salvo las listas con clave). No lo publiques en redes.
 - La clave anon es pública por diseño, y en GitHub Pages gratis el repositorio es público; por eso conviene un nombre de repositorio poco evidente.
 - Los proyectos gratuitos de Supabase se pausan tras una semana sin actividad. Si pasa, se reactivan con un clic desde el panel.
+
+## Actualizaciones
+Si cambia `supabase.sql`, se ejecuta el archivo de migración correspondiente en el SQL Editor sin perder datos: `migracion-ofertas.sql` (precios en varias tiendas) y `migracion-categorias.sql` (categorías y subcategorías). Para actualizar la página, sube el nuevo `index.html` a GitHub; tus datos de Supabase se quedan en `config.js`.
