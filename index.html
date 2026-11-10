@@ -4,23 +4,24 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Reyes: lista de regalos</title>
+<script>try{var t=localStorage.getItem('reyes.tema');if(t)document.documentElement.setAttribute('data-tema',t);}catch(e){}</script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%91%91%3C/text%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Figtree:wght@400;600&display=swap">
 <style>
 :root{--bg:#f2f4fa;--card:#fff;--ink:#1f2850;--mute:#5d668c;--line:#dde1f0;--gold:#9a6a0c;--goldbg:#fbf0d5;--ok:#2b7a58;--okbg:#dff3e8;--bad:#b3394f;--badbg:#fbe3e7;--pri:#27306b;--onpri:#fff;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root{--bg:#121733;--card:#1b2244;--ink:#e8ebfa;--mute:#9aa3cc;--line:#2c3563;--gold:#e5b550;--goldbg:#3a3118;--ok:#6fcf9f;--okbg:#17372b;--bad:#f08aa0;--badbg:#401c28;--pri:#aab4ff;--onpri:#121733;color-scheme:dark}}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:720px;margin:0 auto;padding:20px 16px 48px}
-h1,h2{font-family:Fraunces,Georgia,serif;font-weight:600;margin:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 var(--fb);min-height:100vh}
+main{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:20px 16px 48px}
+h1,h2{font-family:var(--fh);font-weight:600;margin:0}
 h1{font-size:30px;line-height:1.1}
 .sub{color:var(--mute);margin:4px 0 16px}
 button{font:inherit;color:inherit;cursor:pointer}
 .sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
-.sum div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.sum div{box-shadow:var(--sh);background:var(--card);border:var(--bw) solid var(--line);border-radius:var(--rad-s);padding:10px 12px}
 .sum span{display:block;font-size:13px;color:var(--mute)}
 .sum b{font-size:18px}
 .over{color:var(--bad)}
-.person{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:16px}
+.person{box-shadow:var(--sh);background:var(--card);border:var(--bw) solid var(--line);border-radius:var(--rad);padding:14px;margin-bottom:16px}
 .ph{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .ph h2{font-size:22px}
 .link{background:none;border:0;color:var(--pri);padding:4px;text-decoration:underline}
@@ -32,7 +33,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .bt{font-size:13px;color:var(--mute);margin:0 0 8px}
 ul{list-style:none;margin:0;padding:0}
 .it{display:grid;grid-template-columns:48px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
-.th{width:48px;height:48px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:22px;overflow:hidden}
+.th{width:48px;height:48px;border-radius:var(--rad-s);background:var(--bg);display:grid;place-items:center;font-size:22px;overflow:hidden}
 .th img{width:100%;height:100%;object-fit:cover}
 .mid b{display:block;font-weight:600;overflow-wrap:anywhere}
 .mid small{color:var(--mute);font-size:13px;overflow-wrap:anywhere}
@@ -44,28 +45,28 @@ ul{list-style:none;margin:0;padding:0}
 .s-comprado{background:var(--okbg);color:var(--ok)}
 .s-envuelto{background:var(--pri);color:var(--onpri)}
 .empty{color:var(--mute);padding:8px 0}
-.add{margin-top:8px;background:none;border:1px dashed var(--line);border-radius:10px;padding:8px;width:100%;color:var(--pri)}
-.big{width:100%;background:var(--pri);color:var(--onpri);border:0;border-radius:12px;padding:12px;font-weight:600}
+.add{margin-top:8px;background:none;border:var(--bw) dashed var(--line);border-radius:var(--rad-s);padding:8px;width:100%;color:var(--pri)}
+.big{width:100%;background:var(--pri);color:var(--onpri);border:0;border-radius:var(--rad-s);padding:12px;font-weight:600}
 .note{color:var(--mute);text-align:center;padding:24px 0}
-dialog{border:0;border-radius:16px;background:var(--card);color:var(--ink);padding:0;width:min(440px,calc(100vw - 24px));max-height:calc(100vh - 24px)}
+dialog{border:0;border-radius:var(--rad);background:var(--card);color:var(--ink);padding:0;width:min(440px,calc(100vw - 24px));max-height:calc(100vh - 24px)}
 dialog::backdrop{background:rgba(10,14,40,.55)}
 .dlg{padding:16px}
 .dlg h2{font-size:22px;margin-bottom:8px}
 label{display:block;font-size:13px;color:var(--mute);margin-top:10px}
-input,select,textarea{display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:9px 10px;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px}
+input,select,textarea{display:block;width:100%;box-sizing:border-box;margin-top:4px;padding:9px 10px;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:var(--bw) solid var(--line);border-radius:var(--rad-s)}
 .r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .inl{display:flex;gap:8px}
-.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:9px 14px;margin-top:4px}
-.pri{background:var(--pri);color:var(--onpri);border:0;border-radius:10px;padding:10px 16px;font-weight:600}
+.ghost{background:none;border:var(--bw) solid var(--line);border-radius:var(--rad-s);padding:9px 14px;margin-top:4px}
+.pri{background:var(--pri);color:var(--onpri);border:0;border-radius:var(--rad-s);padding:10px 16px;font-weight:600}
 .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center}
 .hint{font-size:13px;color:var(--mute);margin:6px 0 0}
 .lock{font-size:18px}
 .acts .sp{flex:1}
 .dng{color:var(--bad);border-color:var(--bad)}
 .err{color:var(--bad);font-size:14px;margin:8px 0 0;min-height:1em}
-#prev{max-width:96px;max-height:96px;border-radius:10px;margin-top:8px;display:none}
+#prev{max-width:96px;max-height:96px;border-radius:var(--rad-s);margin-top:8px;display:none}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
-.of{border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:8px}
+.of{border:var(--bw) solid var(--line);border-radius:var(--rad-s);padding:8px;margin-top:8px}
 .of input{margin-top:6px}
 .of .acts{margin-top:8px}
 .tag{font-size:13px;color:var(--ok);font-weight:600}
@@ -76,7 +77,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .bus{margin-bottom:16px}
 .bus input{margin:0;background:var(--card)}
 .fl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.fl button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;font-size:14px}
+.fl button{border:var(--bw) solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;font-size:14px}
 .fl button.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
 .ed{font-size:15px;padding:0 4px;text-decoration:none}
 [hidden]{display:none!important}
@@ -91,12 +92,50 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .gh small .sep{color:var(--mute);margin:0 6px}
 .rb{color:var(--ok)}
 .rp{color:var(--gold)}
+:root{--rad:16px;--rad-s:10px;--bw:1px;--sh:none;--fh:Fraunces,Georgia,serif;--fb:Figtree,system-ui,-apple-system,"Segoe UI",sans-serif}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.top h1{margin:0}
+.tbtn{flex:none;width:44px;height:44px;border-radius:50%;border:var(--bw) solid var(--line);background:var(--card);font-size:20px;line-height:1;padding:0}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.tc{border:var(--bw) solid var(--line);border-radius:var(--rad-s);background:var(--bg);padding:10px;text-align:left}
+.tc.on{border-color:var(--pri);outline:2px solid var(--pri)}
+.tc b{display:block;font-weight:600}
+.sw{display:flex;gap:4px;margin-bottom:6px}
+.sw i{width:22px;height:22px;border-radius:50%;border:1px solid rgba(128,128,128,.4)}
+:root[data-tema="bosque"]{--bg:#eef3ea;--card:#fbfdf8;--ink:#1f3324;--mute:#5a6e5e;--line:#c0d2bb;--gold:#8a5a0a;--goldbg:#f6ead0;--ok:#256b3c;--okbg:#d9eedd;--bad:#a33a3a;--badbg:#f6dcdc;--pri:#2f5d3a;--onpri:#ffffff;--rad:6px;--rad-s:4px;--bw:2px;--sh:none;--fh:Lora,Georgia,serif;--fb:"Nunito Sans",system-ui,sans-serif;color-scheme:light}
+:root[data-tema="noche"]{--bg:#101418;--card:#181e25;--ink:#e6edf3;--mute:#8b98a5;--line:#2a333d;--gold:#f0b24a;--goldbg:#3a2f14;--ok:#4cd6a0;--okbg:#123a2d;--bad:#ff7b8a;--badbg:#44202a;--pri:#4fc3f7;--onpri:#06222f;--rad:12px;--rad-s:8px;--bw:1px;--sh:0 0 0 1px rgba(79,195,247,.1),0 8px 24px rgba(0,0,0,.4);--fh:"Space Grotesk",system-ui,sans-serif;--fb:Inter,system-ui,sans-serif;color-scheme:dark}
+:root[data-tema="pastel"]{--bg:#fdf2f8;--card:#ffffff;--ink:#4a2a4f;--mute:#8c6b91;--line:#f0c9e0;--gold:#a15c00;--goldbg:#ffe9c7;--ok:#2a8a64;--okbg:#d8f5e8;--bad:#c2335f;--badbg:#ffe0ea;--pri:#b455d6;--onpri:#ffffff;--rad:26px;--rad-s:18px;--bw:2px;--sh:none;--fh:Fredoka,system-ui,sans-serif;--fb:Quicksand,system-ui,sans-serif;color-scheme:light}
+:root[data-tema="navidad"]{--bg:#fff7ec;--card:#fffdf9;--ink:#3a1c1c;--mute:#7a5a50;--line:#ecd3c4;--gold:#9a5b00;--goldbg:#fcebc8;--ok:#1d6b3a;--okbg:#d8efdf;--bad:#b3202a;--badbg:#fbdcdf;--pri:#b3202a;--onpri:#ffffff;--rad:18px;--rad-s:12px;--bw:2px;--sh:none;--fh:"Mountains of Christmas",Georgia,cursive;--fb:Nunito,system-ui,sans-serif;color-scheme:light}
+:root[data-tema="nieve"]{--bg:#d7e8f7;--card:#ffffff;--ink:#14324d;--mute:#52708a;--line:#c3d8ea;--gold:#a35f00;--goldbg:#fdecc8;--ok:#23764f;--okbg:#d6f0e3;--bad:#b63a4b;--badbg:#fbe0e4;--pri:#1d5f9e;--onpri:#ffffff;--rad:20px;--rad-s:12px;--bw:1px;--sh:0 4px 14px rgba(40,90,140,.12);--fh:"Playfair Display",Georgia,serif;--fb:Lato,system-ui,sans-serif;color-scheme:light}
+:root[data-tema="reyes"]{--bg:#14185a;--card:#1e2370;--ink:#f6ecd0;--mute:#b9bde8;--line:#40469c;--gold:#ffd479;--goldbg:#4a3b10;--ok:#7be0a5;--okbg:#12402f;--bad:#ff8fa3;--badbg:#4a1c2c;--pri:#f2c14e;--onpri:#1a1440;--rad:14px;--rad-s:10px;--bw:1px;--sh:0 6px 18px rgba(5,8,50,.45);--fh:Cinzel,Georgia,serif;--fb:"Nunito Sans",system-ui,sans-serif;color-scheme:dark}
+:root[data-tema="chimenea"]{--bg:#2b1b14;--card:#3a251b;--ink:#fbe9d0;--mute:#d2b496;--line:#6b4634;--gold:#ffc861;--goldbg:#53391a;--ok:#9be3a6;--okbg:#1f4a2e;--bad:#ff8b80;--badbg:#5a2420;--pri:#ff6b5e;--onpri:#2b0f0a;--rad:14px;--rad-s:10px;--bw:1px;--sh:0 6px 16px rgba(0,0,0,.35);--fh:Merienda,Georgia,cursive;--fb:Nunito,system-ui,sans-serif;color-scheme:dark}
+
+:root[data-tema="nieve"] body{background:linear-gradient(180deg,#c3dcf2,#eef6fd) fixed}
+:root[data-tema="reyes"] body{background:linear-gradient(180deg,#0d1042,#252a82) fixed}
+:root[data-tema="chimenea"] body{background:radial-gradient(ellipse at 50% 0,#4a2c1d,#2b1b14 70%) fixed}
+:root[data-tema="pastel"] body{background:linear-gradient(180deg,#fde7f3,#efe6ff) fixed}
+:root[data-tema="navidad"] h1::before{content:"🎄 "}
+:root[data-tema="nieve"] h1::before{content:"❄️ "}
+:root[data-tema="reyes"] h1::before{content:"⭐ "}
+:root[data-tema="chimenea"] h1::before{content:"🎁 "}
+:root[data-tema="navidad"] body::before{content:"";position:fixed;top:0;left:0;right:0;height:8px;z-index:5;pointer-events:none;background:repeating-linear-gradient(45deg,#b3202a 0 12px,#fff 12px 24px)}
+:root[data-tema="navidad"] .person{border-top:6px solid #1d6b3a}
+:root[data-tema="nieve"] body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle,#fff 0 2px,rgba(120,160,200,.3) 3px,transparent 4px),radial-gradient(circle,#fff 0 1.5px,rgba(120,160,200,.3) 2.5px,transparent 3.5px),radial-gradient(circle,#fff 0 3px,rgba(120,160,200,.3) 4px,transparent 5px);background-size:90px 90px,130px 130px,210px 210px;background-position:0 0,40px 60px,80px 20px;animation:nieve 20s linear infinite}
+@keyframes nieve{to{background-position:0 900px,40px 960px,80px 1000px}}
+:root[data-tema="reyes"] body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle,#ffe9a8 0 1.2px,transparent 2px),radial-gradient(circle,#fff 0 1px,transparent 2px),radial-gradient(circle,#ffd479 0 1.8px,transparent 3px);background-size:110px 130px,170px 150px,260px 240px;background-position:10px 20px,70px 90px,120px 40px;animation:brillo 4s ease-in-out infinite alternate}
+@keyframes brillo{from{opacity:.4}to{opacity:1}}
+:root[data-tema="reyes"] .person{border-top:3px solid #f2c14e}
+:root[data-tema="chimenea"] body::before{content:"";position:fixed;top:0;left:0;right:0;height:20px;z-index:5;pointer-events:none;background:radial-gradient(circle at 12px 9px,#ff4d4d 0 4px,transparent 5px) 0 0/48px 20px repeat-x,radial-gradient(circle at 24px 11px,#ffd24d 0 4px,transparent 5px) 0 0/48px 20px repeat-x,radial-gradient(circle at 36px 9px,#4dff88 0 4px,transparent 5px) 0 0/48px 20px repeat-x;filter:drop-shadow(0 0 4px rgba(255,200,100,.8));animation:titila 2.4s ease-in-out infinite alternate}
+@keyframes titila{from{opacity:.6}to{opacity:1}}
+:root[data-tema="chimenea"] .person{border-top:4px solid #e0402f}
+@media (prefers-reduced-motion:reduce){body::before{animation:none!important}}
 </style>
 </head>
 <body>
 <main>
-<h1>Reyes 2027</h1>
-<p class="sub">Lista compartida de regalos</p>
+<div class="top"><div><h1>Reyes 2027</h1>
+<p class="sub">Lista compartida de regalos</p></div>
+<button type="button" class="tbtn" id="tm" aria-label="Cambiar estilo">🎨</button></div>
 <div class="bus" id="bus" hidden>
 <input id="q" type="search" placeholder="Buscar regalo, tienda o categoría" autocomplete="off">
 <div class="fl" id="fl"><button type="button" data-e="todos" class="on">Todos</button><button type="button" data-e="pendiente">Pendientes</button><button type="button" data-e="comprado">Comprados</button><button type="button" data-e="envuelto">Envueltos</button></div>
@@ -154,6 +193,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <p class="hint" id="cT"></p>
 <p class="err" id="cE"></p>
 <div class="acts"><button type="button" class="ghost dng" id="cD">Quitar</button><span class="sp"></span><button type="button" class="ghost" id="cX">Cancelar</button><button type="button" class="pri" id="cOk">Guardar</button></div>
+</div></dialog>
+
+<dialog id="dT"><div class="dlg">
+<h2>Estilo de la app</h2>
+<p class="sec">Estilos</p><div class="tg" id="tg1"></div>
+<p class="sec">Navideños</p><div class="tg" id="tg2"></div>
+<div class="acts"><span class="sp"></span><button type="button" class="pri" id="tX">Listo</button></div>
 </div></dialog>
 
 <script src="config.js"></script>
@@ -473,6 +519,37 @@ $('#fl').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   fEstado=b.dataset.e;document.querySelectorAll('#fl button').forEach(x=>x.classList.toggle('on',x===b));render();
 });
+const TEMAS=[
+ {id:'clasico',n:'Clásico',c:['#f2f4fa','#27306b','#9a6a0c']},
+ {id:'bosque',n:'Bosque',c:['#eef3ea','#2f5d3a','#8a5a0a'],f:'Lora:wght@500;700&family=Nunito+Sans:wght@400;600;700'},
+ {id:'noche',n:'Noche',c:['#101418','#4fc3f7','#f0b24a'],f:'Space+Grotesk:wght@500;700&family=Inter:wght@400;600'},
+ {id:'pastel',n:'Pastel',c:['#fdf2f8','#b455d6','#a15c00'],f:'Fredoka:wght@500;600&family=Quicksand:wght@500;600;700'},
+ {id:'navidad',n:'Navidad',c:['#fff7ec','#b3202a','#1d6b3a'],f:'Mountains+of+Christmas:wght@700&family=Nunito:wght@400;600;700',x:1},
+ {id:'nieve',n:'Nieve',c:['#d7e8f7','#1d5f9e','#ffffff'],f:'Playfair+Display:wght@600;700&family=Lato:wght@400;700',x:1},
+ {id:'reyes',n:'Noche de Reyes',c:['#14185a','#f2c14e','#7be0a5'],f:'Cinzel:wght@600;700&family=Nunito+Sans:wght@400;600;700',x:1},
+ {id:'chimenea',n:'Chimenea',c:['#2b1b14','#ff6b5e','#ffc861'],f:'Merienda:wght@600;700&family=Nunito:wght@400;600;700',x:1}
+];
+let temaId=document.documentElement.getAttribute('data-tema')||'clasico';
+function cargarFuente(t){
+  if(!t.f||document.getElementById('f-'+t.id))return;
+  const l=document.createElement('link');l.id='f-'+t.id;l.rel='stylesheet';
+  l.href='https://fonts.googleapis.com/css2?family='+t.f+'&display=swap';document.head.appendChild(l);
+}
+function pintarTemas(){
+  const card=t=>`<button type="button" class="tc ${t.id===temaId?'on':''}" data-t="${t.id}"><span class="sw">${t.c.map(c=>`<i style="background:${c}"></i>`).join('')}</span><b>${t.n}</b></button>`;
+  $('#tg1').innerHTML=TEMAS.filter(t=>!t.x).map(card).join('');
+  $('#tg2').innerHTML=TEMAS.filter(t=>t.x).map(card).join('');
+}
+function aplicarTema(id,guardar){
+  const t=TEMAS.find(x=>x.id===id)||TEMAS[0];
+  temaId=t.id;document.documentElement.setAttribute('data-tema',t.id);cargarFuente(t);
+  if(guardar){try{localStorage.setItem('reyes.tema',t.id);}catch(e){}}
+  pintarTemas();
+}
+$('#tm').onclick=()=>{pintarTemas();$('#dT').showModal();};
+$('#tX').onclick=()=>$('#dT').close();
+$('#dT').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)aplicarTema(b.dataset.t,true);});
+aplicarTema(temaId,false);
 document.addEventListener('error',e=>{if(e.target.tagName==='IMG'&&e.target.id!=='prev'){const s=document.createElement('span');s.textContent='🎁';e.target.replaceWith(s);}},true);
 
 (function start(){
