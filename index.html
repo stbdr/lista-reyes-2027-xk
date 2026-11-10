@@ -73,12 +73,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .gh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0 8px;border-top:1px solid var(--line);cursor:pointer;font-weight:600}
 .gh small{color:var(--mute);font-weight:400;font-size:13px;text-align:right}
 .gh.sub{padding-left:16px;font-size:15px}
+.bus{margin-bottom:16px}
+.bus input{margin:0;background:var(--card)}
+.fl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.fl button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;font-size:14px}
+.fl button.on{background:var(--pri);color:var(--onpri);border-color:var(--pri)}
+.ed{font-size:15px;padding:0 4px;text-decoration:none}
 </style>
 </head>
 <body>
 <main>
 <h1>Reyes 2027</h1>
 <p class="sub">Lista compartida de regalos</p>
+<div class="bus" id="bus" hidden>
+<input id="q" type="search" placeholder="Buscar regalo, tienda o categoría" autocomplete="off">
+<div class="fl" id="fl"><button type="button" data-e="todos" class="on">Todos</button><button type="button" data-e="pendiente">Pendientes</button><button type="button" data-e="comprado">Comprados</button><button type="button" data-e="envuelto">Envueltos</button></div>
+</div>
 <div id="app"><p class="note">Cargando…</p></div>
 </main>
 
@@ -126,6 +136,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <div class="acts"><span class="sp"></span><button type="button" class="ghost" id="kX">Cancelar</button><button type="button" class="pri" id="kOk">Abrir</button></div>
 </div></dialog>
 
+<dialog id="dC"><div class="dlg">
+<h2 id="cH">Editar categoría</h2>
+<label>Nombre<input id="cN" maxlength="40"></label>
+<p class="hint" id="cT"></p>
+<p class="err" id="cE"></p>
+<div class="acts"><button type="button" class="ghost dng" id="cD">Quitar</button><span class="sp"></span><button type="button" class="ghost" id="cX">Cancelar</button><button type="button" class="pri" id="cOk">Guardar</button></div>
+</div></dialog>
+
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
@@ -139,7 +157,7 @@ const sum=(a,f)=>a.reduce((t,x)=>t+(+f(x)||0),0);
 const NEXT={pendiente:'comprado',comprado:'envuelto',envuelto:'pendiente'};
 const ORD={pendiente:0,comprado:1,envuelto:2};
 const fotoUrl=p=>`${SUPABASE_URL}/storage/v1/object/public/fotos/${encodeURIComponent(p)}`;
-let sb=null,loaded=false,people=[],items=[],estado={},curI=null,curP=null,curK=null,curO=[];
+let sb=null,loaded=false,people=[],items=[],estado={},curI=null,curP=null,curK=null,curO=[],curC=null,filtering=false,q='',fEstado='todos';
 let claves={};try{claves=JSON.parse(sessionStorage.getItem('reyes.claves')||'{}');}catch(e){}
 const saveClaves=()=>{try{sessionStorage.setItem('reyes.claves',JSON.stringify(claves));}catch(e){}};
 const kOf=id=>claves[id]||'';
@@ -159,15 +177,19 @@ async function load(){
 function render(){
   if(!loaded)return;
   const by={};items.forEach(i=>(by[i.persona_id]=by[i.persona_id]||[]).push(i));
-  let tb=0,tp=0,ts=0,ocultas=0;
+  let tb=0,tp=0,ts=0,ocultas=0,shown=0,shownT=0;filtering=!!norm(q).trim()||fEstado!=='todos';
   const html=people.map(p=>{
     const st=estado[p.id];
     if(st===false){
       ocultas++;
+      if(filtering)return '';
       return `<section class="person"><div class="ph"><h2>${esc(p.nombre)}</h2><span class="lock">🔒</span></div><p class="bt">Lista de regalos oculta.</p><button class="add" data-act="unlock" data-p="${p.id}">Desbloquear</button></section>`;
     }
-    const its=(by[p.id]||[]).slice().sort((a,b)=>(ORD[a.estado]||0)-(ORD[b.estado]||0));
-    const pl=sum(its,i=>i.precio),sp=sum(its.filter(i=>i.estado!=='pendiente'),i=>i.precio),b=+p.presupuesto||0;
+    const all=(by[p.id]||[]).slice().sort((a,b)=>(ORD[a.estado]||0)-(ORD[b.estado]||0));
+    const its=filtering?all.filter(match):all;
+    if(filtering&&!its.length)return '';
+    shown+=its.length;shownT+=sum(its,i=>i.precio);
+    const pl=sum(all,i=>i.precio),sp=sum(all.filter(i=>i.estado!=='pendiente'),i=>i.precio),b=+p.presupuesto||0;
     tb+=b;tp+=pl;ts+=sp;
     const over=b>0&&pl>b;
     const bt=b?(over?`Te pasas ${eur(pl-b)} del presupuesto de ${eur(b)}`:`Previsto ${eur(pl)} de ${eur(b)}, gastado ${eur(sp)}`):`Previsto ${eur(pl)}, gastado ${eur(sp)}`;
@@ -186,14 +208,17 @@ function render(){
 <ul>${rows||'<li class="empty">Aún no hay regalos.</li>'}</ul>
 <button class="add" data-act="addI" data-p="${p.id}">Añadir regalo</button></section>`;
   }).join('');
-  const top=`<div class="sum"><div><span>Presupuesto</span><b>${eur(tb)}</b></div><div><span>Previsto</span><b class="${tb&&tp>tb?'over':''}">${eur(tp)}</b></div><div><span>Gastado</span><b>${eur(ts)}</b></div></div>${ocultas?'<p class="hint" style="margin:-10px 0 16px">Los totales no incluyen las listas ocultas.</p>':''}`;
+  const searchNote=()=>`<p class="hint" style="margin:0 0 16px">${shown?`${shown===1?'1 regalo encontrado':shown+' regalos encontrados'}, ${eur(shownT)}.`:'No hay regalos que coincidan.'}${ocultas?' Las listas ocultas no entran en la búsqueda.':''}</p>`;
+  const top=filtering?searchNote():`<div class="sum"><div><span>Presupuesto</span><b>${eur(tb)}</b></div><div><span>Previsto</span><b class="${tb&&tp>tb?'over':''}">${eur(tp)}</b></div><div><span>Gastado</span><b>${eur(ts)}</b></div></div>${ocultas?'<p class="hint" style="margin:-10px 0 16px">Los totales no incluyen las listas ocultas.</p>':''}`;
   $('#app').innerHTML=(people.length?top+html:'<p class="note">Todavía no hay nadie en la lista.</p>')+'<button class="big" data-act="addP">Añadir persona</button>';
+  $('#bus').hidden=!people.length;
 }
 
 /*G*/
 const nk=s=>(s||'').trim().toLowerCase();
 let fold={};try{fold=JSON.parse(localStorage.getItem('reyes.plegados')||'{}');}catch(e){}
 function grupos(pid,its,rowOf){
+  const cl=k=>!filtering&&fold[k];
   const cats=new Map();
   its.forEach(i=>{
     const ck=nk(i.categoria),sk=ck?nk(i.subcategoria):'';
@@ -208,18 +233,25 @@ function grupos(pid,its,rowOf){
   const keys=[...cats.keys()].sort((a,b)=>a===''?1:b===''?-1:a.localeCompare(b,'es'));
   return keys.map(ck=>{
     const c=cats.get(ck),fk=pid+'|'+ck;
-    let h=`<li class="gh" role="button" data-act="fold" data-k="${esc(fk)}"><span>${fold[fk]?'▸':'▾'} ${esc(c.label||'Sin categoría')}</span><small>${cnt(c.n,c.t)}</small></li>`;
-    if(fold[fk])return h;
+    let h=`<li class="gh" role="button" data-act="fold" data-k="${esc(fk)}"><span>${cl(fk)?'▸':'▾'} ${esc(c.label||'Sin categoría')}</span><small>${cnt(c.n,c.t)}${ck?` <button class="link ed" data-act="renC" data-p="${esc(pid)}" data-c="${esc(ck)}" aria-label="Editar categoría">✎</button>`:''}</small></li>`;
+    if(cl(fk))return h;
     const sks=[...c.subs.keys()].sort((a,b)=>a===''?-1:b===''?1:a.localeCompare(b,'es'));
     return h+sks.map(sk=>{
       const g=c.subs.get(sk);
       if(sk==='')return g.items.map(rowOf).join('');
       const sf=fk+'|'+sk;
-      return `<li class="gh sub" role="button" data-act="fold" data-k="${esc(sf)}"><span>${fold[sf]?'▸':'▾'} ${esc(g.label)}</span><small>${cnt(g.items.length,g.t)}</small></li>`+(fold[sf]?'':g.items.map(rowOf).join(''));
+      return `<li class="gh sub" role="button" data-act="fold" data-k="${esc(sf)}"><span>${cl(sf)?'▸':'▾'} ${esc(g.label)}</span><small>${cnt(g.items.length,g.t)} <button class="link ed" data-act="renC" data-p="${esc(pid)}" data-c="${esc(ck)}" data-s="${esc(sk)}" aria-label="Editar subcategoría">✎</button></small></li>`+(cl(sf)?'':g.items.map(rowOf).join(''));
     }).join('');
   }).join('');
 }
 /*E*/
+const norm=t=>(t==null?'':String(t)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+function match(i){
+  if(fEstado!=='todos'&&i.estado!==fEstado)return false;
+  const t=norm(q).trim();if(!t)return true;
+  const hay=norm([i.nombre,i.categoria,i.subcategoria,i.tienda,i.comprador,i.notas].concat((i.ofertas||[]).map(o=>o.tienda)).join(' '));
+  return t.split(/\s+/).every(w=>hay.includes(w));
+}
 const canon=(val,arr)=>{const t=(val||'').trim();const f=arr.find(x=>(x||'').trim()&&nk(x)===nk(t));return f?f.trim():t;};
 function fillSug(){
   const mine=items.filter(i=>i.persona_id===curI.persona_id);
@@ -327,6 +359,7 @@ document.addEventListener('click',async e=>{
   else if(a==='addP')openPerson(null);
   else if(a==='unlock')openKey(t.dataset.p);
   else if(a==='hide'){delete claves[t.dataset.p];saveClaves();load();}
+  else if(a==='renC')openCat(t.dataset.p,t.dataset.c,t.dataset.s==null?null:t.dataset.s);
   else if(a==='fold'){const k=t.dataset.k;if(fold[k])delete fold[k];else fold[k]=1;try{localStorage.setItem('reyes.plegados',JSON.stringify(fold));}catch(e){}render();}
 });
 $('#iX').onclick=()=>$('#dI').close();
@@ -377,6 +410,43 @@ $('#oL').addEventListener('click',e=>{
   }
 });
 $('#oA').onclick=()=>{if(curO.length<8){curO.push({tienda:'',precio:0,enlace:''});renderO();}};
+function openCat(pid,ck,sk){
+  curC={pid,ck,sk};
+  const its=items.filter(i=>i.persona_id===pid&&nk(i.categoria)===ck&&(sk===null||nk(i.subcategoria)===sk));
+  const lbl=its[0]?((sk===null?its[0].categoria:its[0].subcategoria)||'').trim():'';
+  const tipo=sk===null?'categoría':'subcategoría';
+  $('#cH').textContent='Editar '+tipo;$('#cN').value=lbl;
+  $('#cT').textContent=`Se cambia en ${its.length} ${its.length===1?'regalo':'regalos'} de esta persona. Si pones el nombre de otra ${tipo} que ya existe, se juntan. Quitar deja los regalos ${sk===null?'en «Sin categoría»':'en su categoría, sin subcategoría'}.`;
+  $('#cE').textContent='';$('#cD').textContent='Quitar';$('#cD').dataset.sure='';
+  $('#dC').showModal();
+}
+async function aplicarCat(nuevo,quitar){
+  const {pid,ck,sk}=curC;
+  const esAf=i=>i.persona_id===pid&&nk(i.categoria)===ck&&(sk===null||nk(i.subcategoria)===sk);
+  const afect=items.filter(esAf),resto=items.filter(i=>i.persona_id===pid&&!esAf(i));
+  const val=quitar?'':(sk===null?canon(nuevo,resto.map(i=>i.categoria)):canon(nuevo,resto.filter(i=>nk(i.categoria)===ck).map(i=>i.subcategoria)));
+  const btn=$('#cOk');btn.disabled=true;$('#cE').textContent='';
+  try{
+    for(let k=0;k<afect.length;k+=6){
+      const rs=await Promise.all(afect.slice(k,k+6).map(i=>sb.rpc('guardar_regalo',{p_persona:pid,p_clave:kOf(pid),p_id:i.id,p_datos:{...datosDe(i),categoria:sk===null?val:i.categoria,subcategoria:sk===null?(val?i.subcategoria:''):val}})));
+      if(rs.some(r=>r.error))throw new Error('fallo');
+    }
+    $('#dC').close();
+  }catch(e){$('#cE').textContent='No se pudo guardar todo. Inténtalo de nuevo.';}
+  btn.disabled=false;await load();
+}
+$('#cX').onclick=()=>$('#dC').close();
+$('#cOk').onclick=()=>{const v=$('#cN').value.trim();if(!v){$('#cE').textContent='Escribe un nombre o usa Quitar.';return;}aplicarCat(v,false);};
+$('#cD').onclick=e=>{
+  const b=e.currentTarget;
+  if(b.dataset.sure!=='1'){b.dataset.sure='1';b.textContent='¿Seguro?';setTimeout(()=>{b.dataset.sure='';b.textContent='Quitar';},3000);return;}
+  b.dataset.sure='';aplicarCat('',true);
+};
+$('#q').addEventListener('input',e=>{q=e.target.value;render();});
+$('#fl').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  fEstado=b.dataset.e;document.querySelectorAll('#fl button').forEach(x=>x.classList.toggle('on',x===b));render();
+});
 document.addEventListener('error',e=>{if(e.target.tagName==='IMG'&&e.target.id!=='prev'){const s=document.createElement('span');s.textContent='🎁';e.target.replaceWith(s);}},true);
 
 (function start(){
