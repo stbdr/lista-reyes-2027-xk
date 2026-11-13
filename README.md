@@ -26,4 +26,4 @@ Al crear o editar a una persona puedes ponerle una **clave**. Su lista de regalo
 - Los proyectos gratuitos de Supabase se pausan tras una semana sin actividad. Si pasa, se reactivan con un clic desde el panel.
 
 ## Actualizaciones
-Si cambia `supabase.sql`, se ejecuta el archivo de migración correspondiente en el SQL Editor sin perder datos: `migracion-ofertas.sql` (precios en varias tiendas) y `migracion-categorias.sql` (categorías y subcategorías). Para actualizar la página, sube el nuevo `index.html` a GitHub; tus datos de Supabase se quedan en `config.js`.
+Si cambia `supabase.sql`, se ejecuta el archivo de migración correspondiente en el SQL Editor sin perder datos: `migracion-ofertas.sql` (precios en varias tiendas) `migracion-categorias.sql` (categorías y subcategorías) y `migracion-novedades.sql` (marca de novedades; ejecútala ANTES de subir el nuevo `index.html`). Para actualizar la página, sube el nuevo `index.html` a GitHub; tus datos de Supabase se quedan en `config.js`.

@@ -129,6 +129,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @keyframes titila{from{opacity:.6}to{opacity:1}}
 :root[data-tema="chimenea"] .person{border-top:4px solid #e0402f}
 @media (prefers-reduced-motion:reduce){body::before{animation:none!important}}
+.nv{background:var(--pri);color:var(--onpri);font-size:11px;font-weight:600;border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:middle;white-space:nowrap}
+.pt{color:var(--pri);font-size:12px;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -229,7 +231,9 @@ async function load(){
     sb.rpc('ver_regalos',{p_claves:claves})
   ]);
   if(a.error||b.error||c.error){if(!loaded)note('No se pudo conectar con Supabase. Revisa la configuración y que hayas ejecutado supabase.sql.');return;}
-  people=a.data;estado={};(b.data||[]).forEach(r=>{estado[r.persona_id]=r.abierta;});items=c.data||[];loaded=true;render();
+  people=a.data;estado={};(b.data||[]).forEach(r=>{estado[r.persona_id]=r.abierta;});items=c.data||[];loaded=true;
+  if(primera){people.forEach(p=>{if(estado[p.id]!==false)baseline(p.id);});primera=false;guardarVistos();}
+  render();
 }
 
 function render(){
@@ -256,19 +260,21 @@ function render(){
       const meta=[i.comprador?'Lo compra '+esc(i.comprador):'',esc(i.tienda),pr.length>1?`${pr.length} tiendas, desde ${eur(Math.min(...pr))}`:'',esc(i.notas)].filter(Boolean).join(', ');
       const lk=/^https?:\/\//i.test(i.enlace||'')?` <a href="${esc(i.enlace)}" target="_blank" rel="noopener noreferrer">Ver enlace</a>`:'';
       const th=i.foto?`<img src="${esc(fotoUrl(i.foto))}" alt="" loading="lazy">`:'🎁';
-      return `<li class="it" data-act="item" data-i="${i.id}"><div class="th">${th}</div><div class="mid"><b>${esc(i.nombre)}</b><small>${meta}${lk}</small></div><div class="end"><span class="price">${i.precio?eur(i.precio):'Sin precio'}</span><button class="chip s-${i.estado}" data-act="cycle" data-i="${i.id}">${esc(i.estado)}</button></div></li>`;
+      return `<li class="it" data-act="item" data-i="${i.id}"><div class="th">${th}</div><div class="mid"><b>${esc(i.nombre)}${marca(i)?` <span class="nv">${marca(i)==='n'?'Nuevo':'Modificado'}</span>`:''}</b><small>${meta}${lk}</small></div><div class="end"><span class="price">${i.precio?eur(i.precio):'Sin precio'}</span><button class="chip s-${i.estado}" data-act="cycle" data-i="${i.id}">${esc(i.estado)}</button></div></li>`;
     };
     const rows=grupos(p.id,its,rowOf);
     const abierta=st===true;
-    return `<section class="person"><div class="ph"><h2>${esc(p.nombre)} ${abierta?'<span class="lock">🔓</span>':''}</h2><span>${abierta?`<button class="link" data-act="hide" data-p="${p.id}">Ocultar</button>`:''}<button class="link" data-act="editP" data-p="${p.id}">Editar</button></span></div>
+    return `<section class="person"><div class="ph"><h2>${esc(p.nombre)}${all.some(marca)?DOT:''} ${abierta?'<span class="lock">🔓</span>':''}</h2><span>${abierta?`<button class="link" data-act="hide" data-p="${p.id}">Ocultar</button>`:''}<button class="link" data-act="editP" data-p="${p.id}">Editar</button></span></div>
 <div class="bar"><i class="pl ${over?'over':''}" style="width:${b?Math.min(100,pl/b*100):0}%"></i><i class="sp" style="width:${b?Math.min(100,sp/b*100):0}%"></i></div>
 <p class="bt ${over?'over':''}">${bt}</p>
 <ul>${rows||'<li class="empty">Aún no hay regalos.</li>'}</ul>
 <button class="add" data-act="addI" data-p="${p.id}">Añadir regalo</button></section>`;
   }).join('');
+  const nov=items.filter(i=>marca(i)).length;
+  const novTop=(!filtering&&nov)?`<p class="hint" style="margin:-8px 0 14px">${DOT.trim()} ${nov===1?'1 novedad':nov+' novedades'}. <button class="link" data-act="visto">Marcar todo como visto</button></p>`:'';
   const searchNote=()=>`<p class="hint" style="margin:0 0 16px">${shown?`${shown===1?'1 regalo encontrado':shown+' regalos encontrados'}, ${eur(shownT)}.`:'No hay regalos que coincidan.'}${ocultas?' Las listas ocultas no entran en la búsqueda.':''}</p>`;
   const top=filtering?searchNote():`<div class="sum"><div><span>Presupuesto</span><b>${eur(tb)}</b></div><div><span>Previsto</span><b class="${tb&&tp>tb?'over':''}">${eur(tp)}</b></div><div><span>Gastado</span><b>${eur(ts)}</b></div></div>${ocultas?'<p class="hint" style="margin:-10px 0 16px">Los totales no incluyen las listas ocultas.</p>':''}`;
-  $('#app').innerHTML=(people.length?top+html:'<p class="note">Todavía no hay nadie en la lista.</p>')+'<button class="big" data-act="addP">Añadir persona</button>';
+  $('#app').innerHTML=(people.length?top+novTop+html:'<p class="note">Todavía no hay nadie en la lista.</p>')+'<button class="big" data-act="addP">Añadir persona</button>';
   $('#bus').hidden=!people.length;
 }
 
@@ -279,7 +285,7 @@ function grupos(pid,its,rowOf){
   const cl=k=>!filtering&&fold[k];
   const cats=new Map();
   const nuevo=l=>({label:l,b:0,bt:0,p:0,pt:0});
-  const suma=(x,i)=>{const v=+i.precio||0;if(i.estado==='pendiente'){x.p++;x.pt+=v;}else{x.b++;x.bt+=v;}};
+  const suma=(x,i)=>{const v=+i.precio||0;if(marca(i))x.nv=(x.nv||0)+1;if(i.estado==='pendiente'){x.p++;x.pt+=v;}else{x.b++;x.bt+=v;}};
   its.forEach(i=>{
     const ck=nk(i.categoria),sk=ck?nk(i.subcategoria):'';
     if(!cats.has(ck))cats.set(ck,{...nuevo((i.categoria||'').trim()),subs:new Map()});
@@ -294,18 +300,26 @@ function grupos(pid,its,rowOf){
   const keys=[...cats.keys()].sort((a,b)=>a===''?1:b===''?-1:a.localeCompare(b,'es'));
   return keys.map(ck=>{
     const c=cats.get(ck),fk=pid+'|'+ck;
-    let h=`<li class="gh" role="button" data-act="fold" data-k="${esc(fk)}"><span>${cl(fk)?'▸':'▾'} ${esc(c.label||'Sin categoría')}${ck?ed(`data-c="${esc(ck)}"`,'categoría'):''}</span><small>${cnt(c)}</small></li>`;
+    let h=`<li class="gh" role="button" data-act="fold" data-k="${esc(fk)}"><span>${cl(fk)?'▸':'▾'} ${esc(c.label||'Sin categoría')}${c.nv?DOT:''}${ck?ed(`data-c="${esc(ck)}"`,'categoría'):''}</span><small>${cnt(c)}</small></li>`;
     if(cl(fk))return h;
     const sks=[...c.subs.keys()].sort((a,b)=>a===''?-1:b===''?1:a.localeCompare(b,'es'));
     return h+sks.map(sk=>{
       const g=c.subs.get(sk);
       if(sk==='')return g.items.map(rowOf).join('');
       const sf=fk+'|'+sk;
-      return `<li class="gh sub" role="button" data-act="fold" data-k="${esc(sf)}"><span>${cl(sf)?'▸':'▾'} ${esc(g.label)}${ed(`data-c="${esc(ck)}" data-s="${esc(sk)}"`,'subcategoría')}</span><small>${cnt(g)}</small></li>`+(cl(sf)?'':g.items.map(rowOf).join(''));
+      return `<li class="gh sub" role="button" data-act="fold" data-k="${esc(sf)}"><span>${cl(sf)?'▸':'▾'} ${esc(g.label)}${g.nv?DOT:''}${ed(`data-c="${esc(ck)}" data-s="${esc(sk)}"`,'subcategoría')}</span><small>${cnt(g)}</small></li>`+(cl(sf)?'':g.items.map(rowOf).join(''));
     }).join('');
   }).join('');
 }
 /*E*/
+let vistos={},primera=true;
+try{const v=localStorage.getItem('reyes.vistos');if(v){vistos=JSON.parse(v)||{};primera=false;}}catch(e){}
+const ms=t=>Date.parse(t)||0;
+const guardarVistos=()=>{try{localStorage.setItem('reyes.vistos',JSON.stringify(vistos));}catch(e){}};
+const DOT=' <span class="pt" title="Novedades">●</span>';
+function marca(i){const v=vistos[i.id];if(v===undefined)return 'n';return ms(i.modificado)>v?'m':'';}
+function baseline(pid){items.filter(i=>i.persona_id===pid&&vistos[i.id]===undefined).forEach(i=>{vistos[i.id]=ms(i.modificado);});guardarVistos();}
+function vistoId(id){const i=items.find(x=>x.id===id);if(i){vistos[id]=ms(i.modificado);guardarVistos();render();}}
 const norm=t=>(t==null?'':String(t)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
 function match(i){
   if(fEstado!=='todos'&&i.estado!==fEstado)return false;
@@ -378,9 +392,10 @@ async function saveItem(){
     const categoria=canon($('#iC').value,mine.map(i=>i.categoria));
     const subcategoria=categoria?canon($('#iU').value,mine.filter(i=>nk(i.categoria)===nk(categoria)).map(i=>i.subcategoria)):'';
     const datos={nombre,precio,estado:$('#iS').value,comprador,tienda,enlace,notas:$('#iO').value.trim(),foto,ofertas,categoria,subcategoria};
-    const r=await sb.rpc('guardar_regalo',{p_persona:curI.persona_id,p_clave:kOf(curI.persona_id),p_id:curI.id||null,p_datos:datos});
+    const newId=curI.id||crypto.randomUUID();
+    const r=await sb.rpc('guardar_regalo',{p_persona:curI.persona_id,p_clave:kOf(curI.persona_id),p_id:newId,p_datos:datos});
     if(r.error)throw r.error;
-    $('#dI').close();await load();
+    $('#dI').close();await load();vistoId(newId);
   }catch(e){$('#iE').textContent='No se pudo guardar. Revisa la foto, la clave o la conexión e inténtalo de nuevo.';}
   btn.disabled=false;btn.textContent='Guardar';
 }
@@ -412,9 +427,10 @@ document.addEventListener('click',async e=>{
   if(a==='cycle'){
     const it=items.find(x=>x.id===t.dataset.i);if(!it)return;
     it.estado=NEXT[it.estado]||'comprado';render();
-    await sb.rpc('guardar_regalo',{p_persona:it.persona_id,p_clave:kOf(it.persona_id),p_id:it.id,p_datos:datosDe(it)});load();
+    await sb.rpc('guardar_regalo',{p_persona:it.persona_id,p_clave:kOf(it.persona_id),p_id:it.id,p_datos:datosDe(it)});await load();vistoId(it.id);
   }
-  else if(a==='item')openItem(items.find(x=>x.id===t.dataset.i));
+  else if(a==='item'){const it=items.find(x=>x.id===t.dataset.i);if(it){vistoId(it.id);openItem(it);}}
+  else if(a==='visto'){items.forEach(i=>{vistos[i.id]=ms(i.modificado);});guardarVistos();render();}
   else if(a==='addI')openItem(null,t.dataset.p);
   else if(a==='editP')openPerson(people.find(x=>x.id===t.dataset.p));
   else if(a==='addP')openPerson(null);
@@ -431,7 +447,7 @@ $('#pOk').onclick=savePerson;
 $('#kOk').onclick=async()=>{
   claves[curK]=$('#kK').value;saveClaves();await load();
   if(estado[curK]===false){delete claves[curK];saveClaves();$('#kE').textContent='Clave incorrecta.';}
-  else $('#dK').close();
+  else{baseline(curK);$('#dK').close();render();}
 };
 $('#kK').onkeydown=e=>{if(e.key==='Enter')$('#kOk').click();};
 $('#iMe').onclick=()=>{let n='';try{n=localStorage.getItem('reyes.nombre')||'';}catch(e){}$('#iB').value=n;if(!n)$('#iB').focus();};
@@ -506,6 +522,7 @@ async function aplicarCat(nuevo,quitar){
     $('#dC').close();
   }catch(e){$('#cE').textContent='No se pudo guardar todo. Inténtalo de nuevo.';}
   btn.disabled=false;await load();
+  afect.forEach(i=>{const n=items.find(x=>x.id===i.id);if(n)vistos[i.id]=ms(n.modificado);});guardarVistos();render();
 }
 $('#cX').onclick=()=>$('#dC').close();
 $('#cOk').onclick=()=>{const v=$('#cN').value.trim();if(!v){$('#cE').textContent='Escribe un nombre o usa Quitar.';return;}aplicarCat(v,false);};
